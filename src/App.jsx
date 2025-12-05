@@ -1,9 +1,10 @@
+import React from 'react'
 import SearchBar from './components/SearchBar'
 
 const App = () => {
   return (
-    <div className='max-w-[420px] m-auto h-screen'>
-     <SearchBar />
+    <div>
+      <SearchBar />
     </div>
   )
 }

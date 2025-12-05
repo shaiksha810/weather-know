@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 
 const useWeather = () => {
@@ -7,8 +5,9 @@ const useWeather = () => {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
 
-const api_key = "6c858c359e6edb1831f087486412a0ba"
+  const api_key = import.meta.env.VITE_WEATHER_API_KEY;
 
   // Fetch using city
   const fetchWeather = async () => {
@@ -24,7 +23,7 @@ const api_key = "6c858c359e6edb1831f087486412a0ba"
 
       if (data.cod !== 200) throw new Error(data.message);
 
-      setWeather(data);
+      setWeather(data);    // ⬅ FIXED
     } catch (err) {
       setError(err.message);
     }
@@ -32,7 +31,7 @@ const api_key = "6c858c359e6edb1831f087486412a0ba"
     setLoading(false);
   };
 
-  // 🔥 Fetch weather using GPS coordinates
+  // Fetch by GPS
   const fetchByLocation = async (lat, lon) => {
     setLoading(true);
     setError(null);
@@ -45,7 +44,7 @@ const api_key = "6c858c359e6edb1831f087486412a0ba"
       if (data.cod !== 200) throw new Error(data.message);
 
       setWeather(data);
-      setCity(data.name); // also fill input with location
+      setCity(data.name);
     } catch (err) {
       setError(err.message);
     }
@@ -53,7 +52,7 @@ const api_key = "6c858c359e6edb1831f087486412a0ba"
     setLoading(false);
   };
 
-  // 🚀 Detect location on app start
+  // Detect GPS location on page load
   useEffect(() => {
     if ("geolocation" in navigator) {
       setLoading(true);
@@ -70,7 +69,31 @@ const api_key = "6c858c359e6edb1831f087486412a0ba"
     }
   }, []);
 
-  return { city, setCity, weather, loading, error, fetchWeather };
+  // Fetch random background images
+  useEffect(() => {
+    fetch(`https://api.pexels.com/v1/search?query=weather&per_page=5`, {
+      headers: {
+        Authorization: import.meta.env.VITE_IMAGE_API_KEY,
+      },
+    })
+      .then(res => res.json())
+      .then(data => {
+        setImages(data.photos.map(photo => photo.src.landscape)); // ⬅ FIXED
+      });
+  }, []);
+
+  // console.log(images);
+
+  return {
+    city,
+    setCity,
+    weather,
+    loading,
+    error,
+    fetchWeather,
+    fetchByLocation, // ⬅ exposed
+    images,
+  };
 };
 
 export default useWeather;

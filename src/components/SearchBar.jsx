@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { TbCloudSearch } from "react-icons/tb";
@@ -6,21 +6,29 @@ import useWeather from "@/hooks/useWeather";
 import WeatherCard from "./WeatherCard";
 
 const SearchBar = () => {
-  const { city, setCity, weather, loading, error, fetchWeather } = useWeather();
+  const { city, setCity, weather, loading, error, fetchWeather, images } = useWeather();
+  const [bgImage, setBgImage] = useState(null);
+
+  // Choose one random image when images finish loading
+  useEffect(() => {
+    if (images.length > 0) {
+      const random = images[Math.floor(Math.random() * images.length)];
+      setBgImage(random);
+    }
+  }, [images]);
 
   return (
-    <div className="relative max-w-md mx-auto mt-8 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="relative max-w-md mx-auto rounded-xl overflow-hidden shadow-2xl h-screen">
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center transition duration-500]"
         style={{
-          backgroundImage:
-            "url('https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg')",
+          backgroundImage: bgImage ? `url(${bgImage})` : "none",
         }}
-      ></div>
+      />
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+      {/* Blur + dark overlay */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
 
       {/* Content */}
       <div className="relative z-10 p-6 space-y-4 text-white">
@@ -28,7 +36,6 @@ const SearchBar = () => {
           🌤 Weather Forecast
         </h1>
 
-        {/* Input + Search */}
         <div className="flex gap-2">
           <Input
             placeholder="Enter city..."
@@ -53,7 +60,7 @@ const SearchBar = () => {
           </p>
         )}
 
-        {/* Weather info */}
+        {/* Weather Info */}
         {weather && (
           <div className="animate-in fade-in zoom-in-50 duration-300">
             <WeatherCard weatherData={weather} />
